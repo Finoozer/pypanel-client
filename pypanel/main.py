@@ -1,23 +1,30 @@
+import json
+import pathlib
+import pickle
+import re
+import secrets
+import threading
+import uuid
+import webbrowser
+from datetime import date
+from datetime import datetime as datetime
+from datetime import timedelta as timedelta
+from os import listdir, makedirs, path, rename
+from time import sleep
+from uuid import uuid4
+
+import geocoder
+import pytz
+import requests
 from dearpygui.core import *
 from dearpygui.simple import *
-from os import path, makedirs, listdir, rename
-from datetime import datetime as datetime
-from datetime import date
-from datetime import timedelta as timedelta
-from assets import wordlist as wl
-from uuid import uuid4
-from time import sleep
 from pyautogui import size
-import json
-import pickle
-import uuid
-import re
-import requests
-import threading
-import pytz
-import geocoder
-import secrets
-import webbrowser
+
+from .resources import get_resource_path
+BASE_DIR = pathlib.Path(__file__).resolve().parent
+DATA_DIR = get_resource_path('data')
+
+
 # TODO: Add HELP btn to every SubApp
 # TODO: Add Logger
 # TODO: Add PCINFO, DOWNDETECTOR, EXCHANGE RATES, twitch notif
@@ -679,6 +686,7 @@ class WeatherApp(SubApps):
 
 class PassGenApp(SubApps):
     TEMP_FILE = ProfileMan.TEMP_PATH + '/pwds.txt'
+    wl = DATA_DIR / 'wordlist.py'
 
     def __init__(self, is_open=False, autosize=False, x_pos=200, y_pos=200, height=200, width=200, name='PassGenApp'):
         super().__init__(name, is_open, autosize, x_pos, y_pos, height, width)
@@ -725,7 +733,7 @@ class PassGenApp(SubApps):
         for _ in range(num_of_pwds):
             pwd = []
             for _ in range(num_of_wrds):
-                pwd.append(secrets.choice(wl.wordlist))
+                pwd.append(secrets.choice(self.wl.wordlist))
             if inc_letter:
                 pwd[0] = pwd[0].capitalize()
             if inc_num:
