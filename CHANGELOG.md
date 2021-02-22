@@ -5,9 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Add **About window**
+- Add **Getting started** window
 - Implement Logger
 - Add Help window to every subapp
-- Add Appearance settings (TBA with DearPyGUI v0.7)
+- Add Appearance settings (_TBA with DearPyGUI v0.7_)
 - Add **PCInfoApp**
     - CPU, GPU, RAM info
 - Add **DowndetectorApp**
@@ -19,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v0.1.5] - 2021-02-22
 ### Added
 - Profile Manager
-- auto-update feature
+- Auto-update feature
 - **RustApp**
     - Get Rust server info from Battlemetrics
 - **ClockApp**
