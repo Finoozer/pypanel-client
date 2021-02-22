@@ -25,46 +25,6 @@ BASE_DIR = pathlib.Path(__file__).resolve().parent
 DATA_DIR = get_resource_path('data')
 
 
-# TODO: Add HELP btn to every SubApp
-# TODO: Add Logger
-# TODO: Add PCINFO, DOWNDETECTOR, EXCHANGE RATES, twitch notif
-# TODO: Appearance settings in DPG 0.7
-# TODO: Add pyInstaller w/ autoupdates
-
-
-def inet_access(retry=False):
-    try:
-        r = requests.head(url='http://www.google.com/', timeout=5)
-        if retry:
-            if does_item_exist(item='no_inet'):
-                delete_item(item='no_inet')
-            with window(name='connected', label='Connected!', autosize=True):
-                add_dummy()
-                add_text(name='Connected!', color=[255, 25, 25, 200])
-                add_dummy()
-                add_text(name='It is recommended to restart PyPanel,')
-                add_text(name='now that you are connected')
-        else:
-            return
-    except requests.ConnectionError:
-        if does_item_exist(item='no_inet'):
-            delete_item(item='no_inet')
-        with window(name='no_inet', label='No Internet Access', autosize=True):
-            add_dummy()
-            add_text(name='You have no internet connection!', color=[255, 25, 25, 200])
-            add_dummy()
-            add_text(name='Without connection to internet, most of the apps in PyPanel will not work.')
-            add_dummy()
-            add_dummy()
-            with managed_columns(name='check_net', columns=3, border=False):
-                add_dummy()
-                add_button(name='btn_check_conn', label='Check connection', callback=lambda: inet_access(True))
-                add_dummy()
-                add_dummy()
-                add_dummy()
-                add_dummy()
-
-
 class ProfileMan:
     opened_apps = []
 
@@ -686,11 +646,12 @@ class WeatherApp(SubApps):
 
 class PassGenApp(SubApps):
     TEMP_FILE = ProfileMan.TEMP_PATH + '/pwds.txt'
-    wl = DATA_DIR / 'wordlist.py'
+    wl = DATA_DIR / 'wordlist.txt'
 
-    def __init__(self, is_open=False, autosize=False, x_pos=200, y_pos=200, height=200, width=200, name='PassGenApp'):
+    def __init__(self, is_open=False, autosize=True, x_pos=200, y_pos=200, height=200, width=200, name='PassGenApp'):
         super().__init__(name, is_open, autosize, x_pos, y_pos, height, width)
         self.label = 'Password Generator'
+        self.wordlist = open(file=self.wl).read().splitlines()
 
     def open_window(self):
         if not does_item_exist(item=self.name):
@@ -733,7 +694,7 @@ class PassGenApp(SubApps):
         for _ in range(num_of_pwds):
             pwd = []
             for _ in range(num_of_wrds):
-                pwd.append(secrets.choice(self.wl.wordlist))
+                pwd.append(secrets.choice(self.wordlist))
             if inc_letter:
                 pwd[0] = pwd[0].capitalize()
             if inc_num:
@@ -772,7 +733,6 @@ def py_panel():
             add_dummy()
             add_button(name='btn_save_prof', label='Save Profile', callback=main_prof.save_profile)
             set_item_color(item='btn_save_prof', style=mvGuiCol_Button, color=[124, 252, 0, 100])
-        inet_access()
 
     # Center app on screen
     screen_width, screen_height = size()
