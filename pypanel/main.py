@@ -20,7 +20,7 @@ from dearpygui.core import *
 from dearpygui.simple import *
 from pyautogui import size
 
-from resources import get_resource_path
+from .resources import get_resource_path
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 DATA_DIR = get_resource_path('data')
 __version__ = 'v0.1.5'
@@ -313,6 +313,7 @@ class ProfileMan:
                        callback=lambda: self.rename_profile(get_value(name='##new_name'), id_))
 
     def rename_profile(self, new_name, id_):
+        # TODO: Should not be able to rename default
         if 2 < len(new_name) < 50:
             new_name = re.sub(r'[^A-Za-z0-9 ]+', '', new_name)
             prof_path = self.PROFILES_PATH + '/' + id_ + '.dat'
@@ -327,6 +328,7 @@ class ProfileMan:
             add_dummy(parent='w_rename_profile')
             add_text(name='Profile name has to be between 3 and 50 chars long!',
                      parent='w_rename_profile', color=[255, 25, 25, 255])
+            add_text(name='Current length: ' + str(len(new_name)))
             add_dummy(parent='w_rename_profile')
 
     def save_quit(self):
