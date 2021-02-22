@@ -126,3 +126,4 @@ dmypy.json
 # Custom
 build.ps1
 VERSION
+.idea
