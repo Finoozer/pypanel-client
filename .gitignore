@@ -127,3 +127,7 @@ dmypy.json
 build.ps1
 VERSION
 .idea
+
+MAKE_VER.ps1
+
+build_DEBUG.ps1

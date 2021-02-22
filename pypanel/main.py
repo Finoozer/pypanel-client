@@ -20,9 +20,11 @@ from dearpygui.core import *
 from dearpygui.simple import *
 from pyautogui import size
 
-from .resources import get_resource_path
+from resources import get_resource_path
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 DATA_DIR = get_resource_path('data')
+
+__version__ = 'v0.1.5'
 
 
 class ProfileMan:
@@ -50,6 +52,7 @@ class ProfileMan:
         with open(file=self.USER_PATH) as config:
             self.user_conf = json.load(config)
         self.load_user_conf()
+        self.auto_update()
 
     def data_access(self):
         # Create main PyPanel config folder
@@ -85,6 +88,50 @@ class ProfileMan:
             except OSError:
                 print('Could not create config file')
 
+    @staticmethod
+    def download_update(link):
+        webbrowser.open(url=link)
+        stop_dearpygui()
+
+    def auto_update(self):
+        try:
+            remote_ver = requests.get(url='https://api.github.com/repos/Finoozer/{app}/releases/latest',
+                                      timeout=3).json()
+            if 'message' not in remote_ver:
+                if remote_ver['tag_name'] != __version__:
+                    if does_item_exist('w_update_pypanel'):
+                        delete_item('w_update_pypanel')
+                    with window(name='w_update_pypanel', label='Update Available!', autosize=True):
+                        add_input_text(name='##change_log', default_value=remote_ver['body'], multiline=True,
+                                       readonly=True, width=500)
+                        add_dummy(height=10)
+                        with managed_columns(name='update_btns', columns=3, border=False):
+                            add_dummy()
+                            add_text(name='Update to ' + remote_ver['tag_name'] + ' ?')
+                            add_dummy()
+                            add_button(name='btn_skip_update', label='Skip', callback=lambda: delete_item('w_update_pypanel'))
+                            set_item_color(item='btn_skip_update', style=mvGuiCol_Button, color=[255, 25, 25, 100])
+                            add_dummy()
+                            add_button(name='btn_update', label='Update',
+                                       callback=lambda: self.download_update(remote_ver['assets'][0]['browser_download_url']))
+                            set_item_color(item='btn_update', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+
+        except TimeoutError:
+            if does_item_exist('w_timeout'):
+                delete_item('w_timeout')
+            with window(name='w_timeout', label='Timeout', autosize=True):
+                add_dummy()
+                add_text(name='You are offline', color=[255, 25, 25, 200])
+                add_dummy()
+                add_text(name='Most of the PyPanel functionality')
+                add_text(name='is dependent on internet connection.')
+                add_dummy()
+                with managed_columns(name='timeout_btns', columns=2):
+                    add_button(name='btn_cancel_off', label='Cancel', callback=lambda: delete_item('w_timeout'))
+                    set_item_color(item='btn_cancel_off', style=mvGuiCol_Button, color=[255, 25, 25, 100])
+                    add_button(name='btn_retry', label='Retry', callback=self.auto_update)
+                    set_item_color(item='btn_retry', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+
     def load_user_conf(self):
         self.load_profile(self.user_conf['last_profile'])
 
@@ -106,7 +153,7 @@ class ProfileMan:
                 delete_item(item='pu_error')
             with window(name='pu_error', label='Error', autosize=True):
                 add_text(name='An error occurred when trying to load profile',
-                         parent='pu_error', color=[255, 25, 25, 255])
+                         parent='pu_error', color=[255, 25, 25, 200])
             self.load_profile('DEFAULT')
         print(self.profile_data)
         for x in self.profile_data['apps']:  # TODO: Add try/except block if app doesn't exist
@@ -645,7 +692,6 @@ class WeatherApp(SubApps):
 
 
 class PassGenApp(SubApps):
-    TEMP_FILE = ProfileMan.TEMP_PATH + '/pwds.txt'
     wl = DATA_DIR / 'wordlist.txt'
 
     def __init__(self, is_open=False, autosize=True, x_pos=200, y_pos=200, height=200, width=200, name='PassGenApp'):
@@ -701,9 +747,11 @@ class PassGenApp(SubApps):
                 pwd.append(str(secrets.randbelow(10)))
             pwds.append(joiner.join(pwd))
         pwds = '\n'.join(pwds)
-        tmp = open(file=self.TEMP_FILE, mode='w')
-        tmp.writelines(pwds)
-        webbrowser.open(self.TEMP_FILE)
+        if does_item_exist('w_gen_pwds'):
+            delete_item('w_gen_pwds')
+        with window(name='w_gen_pwds', label='Generated Passwords', autosize=True, x_pos=100, y_pos=100):
+            add_input_text(name='##it_pwds', label='', default_value=pwds, readonly=True, multiline=True,
+                           width=int(50 + num_of_wrds * 42), height=int(20 + num_of_pwds * 12))
 
 
 def py_panel():
@@ -722,7 +770,7 @@ def py_panel():
             with menu(name='m_help', label='Help'):
                 add_menu_item(name='mi_get_started', label='Getting Started', callback=None)  # TODO
                 add_separator()
-                add_menu_item(name='mi_updates', label='Check For Updates...', callback=None)  # TODO
+                add_menu_item(name='mi_updates', label='Check For Updates...', callback=main_prof.auto_update)  # TODO
                 add_separator()
                 with menu(name='m_devtools', label='Diagnostic Tools'):
                     add_menu_item(name='mi_logger', label='Logger', callback=show_logger)
