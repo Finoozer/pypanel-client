@@ -93,7 +93,7 @@ class ProfileMan:
         webbrowser.open(url=link)
         stop_dearpygui()
 
-    def auto_update(self):
+    def auto_update(self, diag=False):
         try:
             remote_ver = requests.get(url='https://api.github.com/repos/Finoozer/PyPanel/releases/latest',
                                       timeout=3).json()
@@ -109,12 +109,21 @@ class ProfileMan:
                             add_dummy()
                             add_text(name='Update to ' + remote_ver['tag_name'] + ' ?')
                             add_dummy()
-                            add_button(name='btn_skip_update', label='Skip', callback=lambda: delete_item('w_update_pypanel'))
+                            add_button(name='btn_skip_update', label='Skip',
+                                       callback=lambda: delete_item('w_update_pypanel'))
                             set_item_color(item='btn_skip_update', style=mvGuiCol_Button, color=[255, 25, 25, 100])
                             add_dummy()
                             add_button(name='btn_update', label='Update',
-                                       callback=lambda: self.download_update(remote_ver['assets'][0]['browser_download_url']))
+                                       callback=lambda: self.download_update(remote_ver['assets'][0]
+                                                                             ['browser_download_url']))
                             set_item_color(item='btn_update', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+                if remote_ver['tag_name'] == __version__ and diag is True:
+                    if does_item_exist('w_no_updates'):
+                        delete_item('w_no_updates')
+                    with window(name='w_no_updates', label='No Updates Available', autosize=True):
+                        add_dummy()
+                        add_text(name='There are no updates available.')
+                        add_dummy()
 
         except TimeoutError:
             if does_item_exist('w_timeout'):
@@ -155,8 +164,8 @@ class ProfileMan:
                 add_text(name='An error occurred when trying to load profile',
                          parent='pu_error', color=[255, 25, 25, 200])
             self.load_profile('DEFAULT')
-        print(self.profile_data)
-        for x in self.profile_data['apps']:  # TODO: Add try/except block if app doesn't exist
+
+        for x in self.profile_data['apps']:
             sub_app = globals()[x['name']](**x)
             self.opened_apps.append(sub_app)
             sub_app.open_window()
@@ -184,13 +193,13 @@ class ProfileMan:
     def create_profile(self, sender, data: str):
         if 2 < len(data) < 50:
             data = re.sub(r'[^A-Za-z0-9 ]+', '', data)
-            ID = str(uuid.uuid4())
-            prof_path = self.PROFILES_PATH + '/' + ID + '.dat'
-            self.user_conf['last_profile'] = ID
+            id_ = str(uuid.uuid4())
+            prof_path = self.PROFILES_PATH + '/' + id_ + '.dat'
+            self.user_conf['last_profile'] = id_
             self.update_user_conf()
             [x.close_window() for x in self.opened_apps if x.is_open]
             self.opened_apps.clear()
-            self.profile_data = {'ID': ID, 'name': data, 'apps': []}
+            self.profile_data = {'ID': id_, 'name': data, 'apps': []}
             with open(file=prof_path, mode='wb') as out:
                 pickle.dump(self.profile_data, out, pickle.HIGHEST_PROTOCOL)
             delete_item(item='w_add_profile')
@@ -768,16 +777,17 @@ def py_panel():
             add_menu_item(name='mi_profiles', parent='_menu_bar',
                           label='Profiles', callback=main_prof.profile_man)
             with menu(name='m_help', label='Help'):
-                add_menu_item(name='mi_get_started', label='Getting Started', callback=None)  # TODO
+                add_menu_item(name='mi_get_started', label='Getting Started', callback=None)
                 add_separator()
-                add_menu_item(name='mi_updates', label='Check For Updates...', callback=main_prof.auto_update)  # TODO
+                add_menu_item(name='mi_updates', label='Check For Updates...',
+                              callback=lambda: main_prof.auto_update(diag=True))
                 add_separator()
                 with menu(name='m_devtools', label='Diagnostic Tools'):
                     add_menu_item(name='mi_logger', label='Logger', callback=show_logger)
                     add_menu_item(name='mi_debug', label='Debug', callback=show_debug)
                     add_menu_item(name='mi_metrics', label='Metrics', callback=show_metrics)
                 add_separator()
-                add_menu_item(name='mi_about', label='About...', callback=None)  # TODO
+                add_menu_item(name='mi_about', label='About...', callback=None)
             add_dummy()
             add_button(name='btn_save_prof', label='Save Profile', callback=main_prof.save_profile)
             set_item_color(item='btn_save_prof', style=mvGuiCol_Button, color=[124, 252, 0, 100])
