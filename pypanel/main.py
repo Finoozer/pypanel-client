@@ -20,11 +20,12 @@ from dearpygui.core import *
 from dearpygui.simple import *
 from pyautogui import size
 
-from .resources import get_resource_path
+from resources import get_resource_path
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 DATA_DIR = get_resource_path('data')
-
 __version__ = 'v0.1.5'
+
+# TODO: Fix scrollbars
 
 
 class ProfileMan:
@@ -273,9 +274,10 @@ class ProfileMan:
             PassGenApp))
 
     def remove_profile(self, sender, data):
+        data = set(x[0] for x in data)
         for x in data:
             counter = 0
-            id_ = get_table_item(table='profile_man_table', row=x[0]-counter, column=2)
+            id_ = get_table_item(table='profile_man_table', row=x-counter, column=2)
             if id_ == 'DEFAULT':
                 if does_item_exist(item='pu_error'):
                     delete_item(item='pu_error')
@@ -458,6 +460,7 @@ class RustApp(SubApps):
             set_item_color(item='btn_server_id', style=mvGuiCol_Button, color=[25, 255, 25, 100])
 
     def add_server(self, sender, data):
+        # TODO: User should also be able to enter whole URL
         ser_num = data
         try:
             bn_api = 'https://api.battlemetrics.com/servers/'
@@ -488,8 +491,9 @@ class RustApp(SubApps):
 
     def remove_server(self, sender, row):
         counter = 0
+        row = set(x[0] for x in row)
         for x in row:
-            self.ser_list.pop(x[0] - counter)
+            self.ser_list.pop(x - counter)
             counter += 1
         self.refresh()
 
@@ -541,6 +545,7 @@ class ClockApp(SubApps):
         self.date_pointer = 'date'
         self.weekday_pointer = 'weekday'
         self.zones = [*pytz.common_timezones]
+        # TODO: PYTZ contains unavailable zones
 
     def get_local_time(self):
         while True:
@@ -586,6 +591,7 @@ class ClockApp(SubApps):
                 sleep(5)
 
     def open_diag(self):
+        # TODO: Make window modal
         self.delit('diag_add_zone')
         with window(name='diag_add_zone', label='Add New Clock',
                     autosize=True, on_close=lambda: delete_item(item='diag_add_zone')):
@@ -618,8 +624,9 @@ class ClockApp(SubApps):
 
     def remove_zone(self, sender, rows):
         counter = 0
+        rows = set(x[0] for x in rows)
         for x in rows:
-            self.saved_zones.pop(x[0] - counter)
+            self.saved_zones.pop(x - counter)
             counter += 1
         self.refresh_table()
 
@@ -651,6 +658,8 @@ class WeatherApp(SubApps):
     prec_am = {0: 'None', 1: '0 mm/hr', 2: '1 mm/hr', 3: '4 mm/hr', 4: '10 mm/hr', 5: '16 mm/hr', 6: '30 mm/hr',
                7: '50 mm/hr', 8: '75 mm/hr', 9: 'Over 75 mm/hr'}
 
+    # TODO: Add 'Sunny' or 'Cloudy' based on json
+
     def __init__(self, is_open=False, autosize=False, x_pos=200, y_pos=200, height=200, width=200, name='WeatherApp'):
         super().__init__(name, is_open, autosize, x_pos, y_pos, height, width)
         self.location = geocoder.ip('me').latlng
@@ -666,15 +675,18 @@ class WeatherApp(SubApps):
             with window(name=self.name, label=self.label, x_pos=self.x_pos, y_pos=self.y_pos, height=self.height,
                         width=self.width, on_close=self.close_window):
                 with managed_columns(name='weather_info_cols', columns=2):
+                    # TODO: Add current temp, sunny/cloudy - make 3 columns
                     add_text(name='Location: ' + self.city, tip='Estimate (based on your IP)')
                     add_button(name='btn_man_ref', label='Refresh', tip='Manual Refresh', callback=self.get_weather)
                     set_item_color(item='btn_man_ref', style=mvGuiCol_Button, color=[25, 255, 25, 100])
                     add_text(name='Requested At: ', source=self.req_at)
+                    # TODO: Add fixed height to table
                 add_table(name=self.table, headers=['Day', 'Hour', 'Temp', 'Prec. Type', 'Prec. Amount'])
                 if self.cb is None:
                     self.ref_table()
 
     def get_weather(self):
+        # TODO: Add loading
         url = 'http://www.7timer.info/bin/api.pl?lon=' + str(self.location[1]) + \
               '&lat=' + str(self.location[0]) + '&product=civil&output=json'
         obj = requests.get(url=url).json()

@@ -131,3 +131,5 @@ VERSION
 MAKE_VER.ps1
 
 build_DEBUG.ps1
+
+build_ELEV.ps1
