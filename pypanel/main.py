@@ -20,7 +20,7 @@ from dearpygui.core import *
 from dearpygui.simple import *
 from pyautogui import size
 
-from resources import get_resource_path
+from .resources import get_resource_path
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 DATA_DIR = get_resource_path('data')
 
@@ -95,7 +95,7 @@ class ProfileMan:
 
     def auto_update(self):
         try:
-            remote_ver = requests.get(url='https://api.github.com/repos/Finoozer/{app}/releases/latest',
+            remote_ver = requests.get(url='https://api.github.com/repos/Finoozer/PyPanel/releases/latest',
                                       timeout=3).json()
             if 'message' not in remote_ver:
                 if remote_ver['tag_name'] != __version__:
