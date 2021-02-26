@@ -88,17 +88,25 @@ Warnings above will be fixed in upcoming versions of PyPanel.
 
 #### RustApp
 Monitor number of joined, queued and max players on a Rust server using Battlemetrics' URL.
+
 ![rust_app](docs/img/sub-apps/rust_app.png)
+
 #### ClockApp
 A simple app to display local or remote time.
+
 ![clock_app](docs/img/sub-apps/clock_app.png)
+
 #### WeatherApp
 Local weather forecast. Displays temperature, precipitation type (i.e. raining, snowing) and amount (in mm/hr) for the 
 next 8 days.
+
 ![weather_app](docs/img/sub-apps/weather_app.png)
+
 #### PassGenApp
 Generate stronger and easier to remember passwords. Based on [xkcd #936](https://xkcd.com/936/).
+
 ![passgen_app](docs/img/sub-apps/passgen_app.png)
+
 ### Build
 
 ---
