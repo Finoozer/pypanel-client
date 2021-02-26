@@ -150,12 +150,19 @@ Building PyPanel from source code is a straightforward process.
 
 ---
 
-| Dependencies |  |
-| --- | --- |
-| [DearPyGui](https://github.com/hoffstadt/DearPyGui) | [pytz](https://pypi.org/project/pytz/)
-| [geocoder](https://pypi.org/project/geocoder/) | [requests](https://github.com/psf/requests)
-| [PyAutoGUI](https://pypi.org/project/PyAutoGUI/) | [PyInstaller](https://www.pyinstaller.org/)
-| [Inno Setup](https://jrsoftware.org/isinfo.php)
+Developed by: [Novotny Filip](https://github.com/Finoozer)
+
+Tester: [Caldr Jiri](https://github.com/caldrjir)
+
+Logo designer: [Lukas Lobik](https://github.com/lobiklukas)
+
+#### Dependencies
+
+[DearPyGui](https://github.com/hoffstadt/DearPyGui) | [pytz](https://pypi.org/project/pytz/)
+| [Inno Setup](https://jrsoftware.org/isinfo.php) | [requests](https://github.com/psf/requests) 
+|[PyAutoGUI](https://pypi.org/project/PyAutoGUI/) | [PyInstaller](https://www.pyinstaller.org/)
+
+---
 
 ### License
 
