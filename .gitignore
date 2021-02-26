@@ -135,3 +135,5 @@ build_DEBUG.ps1
 build_ELEV.ps1
 
 metadata.yml
+
+colors.conf

@@ -23,9 +23,22 @@ from pyautogui import size
 from .resources import get_resource_path
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 DATA_DIR = get_resource_path('data')
-__version__ = 'v0.1.5'
+logo = DATA_DIR / 'logo.png'
+py_panel_text = DATA_DIR / 'PyPanel.png'
+__version__ = 'v0.1.6'
+__beta__ = '-beta'
 
-# TODO: Fix scrollbars
+
+def error_msg(msg, add=None):
+    if does_item_exist('err_msg'):
+        delete_item('err_msg')
+    with window(name='err_msg', label='Error', autosize=True):
+        add_dummy()
+        add_text(name=msg, color=[255, 25, 25, 225])
+        if add:
+            add_dummy()
+            add_text(name=add, color=[255, 25, 25, 225])
+        add_dummy()
 
 
 class ProfileMan:
@@ -112,12 +125,12 @@ class ProfileMan:
                             add_dummy()
                             add_button(name='btn_skip_update', label='Skip',
                                        callback=lambda: delete_item('w_update_pypanel'))
-                            set_item_color(item='btn_skip_update', style=mvGuiCol_Button, color=[255, 25, 25, 100])
+                            set_item_color(item='btn_skip_update', style=mvGuiCol_Button, color=[255, 25, 25, 110])
                             add_dummy()
                             add_button(name='btn_update', label='Update',
                                        callback=lambda: self.download_update(remote_ver['assets'][0]
                                                                              ['browser_download_url']))
-                            set_item_color(item='btn_update', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+                            set_item_color(item='btn_update', style=mvGuiCol_Button, color=[25, 255, 25, 110])
                 if remote_ver['tag_name'] == __version__ and diag is True:
                     if does_item_exist('w_no_updates'):
                         delete_item('w_no_updates')
@@ -131,16 +144,16 @@ class ProfileMan:
                 delete_item('w_timeout')
             with window(name='w_timeout', label='Timeout', autosize=True):
                 add_dummy()
-                add_text(name='You are offline', color=[255, 25, 25, 200])
+                add_text(name='You are offline', color=[255, 25, 25, 225])
                 add_dummy()
                 add_text(name='Most of the PyPanel functionality')
                 add_text(name='is dependent on internet connection.')
                 add_dummy()
                 with managed_columns(name='timeout_btns', columns=2):
                     add_button(name='btn_cancel_off', label='Cancel', callback=lambda: delete_item('w_timeout'))
-                    set_item_color(item='btn_cancel_off', style=mvGuiCol_Button, color=[255, 25, 25, 100])
+                    set_item_color(item='btn_cancel_off', style=mvGuiCol_Button, color=[255, 25, 25, 110])
                     add_button(name='btn_retry', label='Retry', callback=self.auto_update)
-                    set_item_color(item='btn_retry', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+                    set_item_color(item='btn_retry', style=mvGuiCol_Button, color=[25, 255, 25, 110])
 
     def load_user_conf(self):
         self.load_profile(self.user_conf['last_profile'])
@@ -159,11 +172,7 @@ class ProfileMan:
             self.user_conf['last_profile'] = prof
             self.update_user_conf()
         except OSError:
-            if does_item_exist(item='pu_error'):
-                delete_item(item='pu_error')
-            with window(name='pu_error', label='Error', autosize=True):
-                add_text(name='An error occurred when trying to load profile',
-                         parent='pu_error', color=[255, 25, 25, 200])
+            error_msg('An error occurred when trying to load profile')
             self.load_profile('DEFAULT')
 
         for x in self.profile_data['apps']:
@@ -206,30 +215,26 @@ class ProfileMan:
             delete_item(item='w_add_profile')
             self.list_profiles()
         else:
-            add_dummy(parent='w_add_profile')
-            add_text(name='Profile name has to be between 3 and 50 chars long!',
-                     parent='w_add_profile', color=[255, 25, 25, 255])
-            add_dummy(parent='w_add_profile')
+            error_msg('Profile name has to be between 3 and 50 chars long!')
 
     def profile_man(self):
-        # TODO: Center profile_man window
         if not does_item_exist(item='profile_man'):
-            with window(name='profile_man', label='Profile Manager'):
+            with window(name='profile_man', label='Profile Manager', width=230):
                 with menu_bar(name='mb_profile_man', parent='profile_man'):
                     add_button(name='profile_man_load', label='Load', callback=self.switch_profile,
                                callback_data=lambda: get_table_selections(table='profile_man_table'))
-                    set_item_color(item='profile_man_load', style=mvGuiCol_Button, color=[25, 25, 255, 100])
+                    set_item_color(item='profile_man_load', style=mvGuiCol_Button, color=[25, 25, 255, 110])
                     add_dummy()
                     add_button(name='profile_man_add', label='Add', callback=self.create_profile_diag)
-                    set_item_color(item='profile_man_add', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+                    set_item_color(item='profile_man_add', style=mvGuiCol_Button, color=[25, 255, 25, 110])
                     add_dummy()
                     add_button(name='profile_man_rename', label='Rename', callback=self.rename_profile_diag,
                                callback_data=lambda: get_table_selections(table='profile_man_table'))
-                    set_item_color(item='profile_man_rename', style=mvGuiCol_Button, color=[255, 69, 0, 100])
+                    set_item_color(item='profile_man_rename', style=mvGuiCol_Button, color=[255, 69, 0, 110])
                     add_dummy()
                     add_button(name='profile_man_remove', label='Remove', callback=self.remove_profile,
                                callback_data=lambda: get_table_selections(table='profile_man_table'))
-                    set_item_color(item='profile_man_remove', style=mvGuiCol_Button, color=[255, 25, 25, 100])
+                    set_item_color(item='profile_man_remove', style=mvGuiCol_Button, color=[255, 25, 25, 110])
 
             add_table(name='profile_man_table', parent='profile_man', headers=['Name', 'Active', 'ID'])
             self.list_profiles()
@@ -279,12 +284,7 @@ class ProfileMan:
             counter = 0
             id_ = get_table_item(table='profile_man_table', row=x-counter, column=2)
             if id_ == 'DEFAULT':
-                if does_item_exist(item='pu_error'):
-                    delete_item(item='pu_error')
-                with window(name='pu_error', label='Error', autosize=True):
-                    add_dummy()
-                    add_text(name='Cannot delete DEFAULT profile!', color=[255, 25, 25, 255])
-                    add_dummy()
+                error_msg('Cannot delete DEFAULT profile!')
             elif id_ == self.user_conf['last_profile']:
                 self.load_profile(prof='DEFAULT')
                 prof_path = self.PROFILES_PATH + '/' + id_
@@ -304,16 +304,18 @@ class ProfileMan:
 
     def rename_profile_diag(self, sender, data):
         id_ = get_table_item(table='profile_man_table', row=data[0][0], column=2)
-        if does_item_exist(item='w_rename_profile'):
-            delete_item(item='w_rename_profile')
-        with window(name='w_rename_profile', label='Rename Profile', autosize=True):
-            add_text(name='New profile name:')
-            add_input_text(name='##new_name', default_value='New Profile')
-            add_button(name='btn_rename_prof', label='Rename',
-                       callback=lambda: self.rename_profile(get_value(name='##new_name'), id_))
+        if id_ != 'DEFAULT':
+            if does_item_exist(item='w_rename_profile'):
+                delete_item(item='w_rename_profile')
+            with window(name='w_rename_profile', label='Rename Profile', autosize=True):
+                add_text(name='New profile name:')
+                add_input_text(name='##new_name', default_value='New Profile')
+                add_button(name='btn_rename_prof', label='Rename',
+                           callback=lambda: self.rename_profile(get_value(name='##new_name'), id_))
+        else:
+            error_msg('Cannot rename DEFAULT profile!')
 
     def rename_profile(self, new_name, id_):
-        # TODO: Should not be able to rename default
         if 2 < len(new_name) < 50:
             new_name = re.sub(r'[^A-Za-z0-9 ]+', '', new_name)
             prof_path = self.PROFILES_PATH + '/' + id_ + '.dat'
@@ -325,11 +327,7 @@ class ProfileMan:
             delete_item(item='w_rename_profile')
             self.list_profiles()
         else:
-            add_dummy(parent='w_rename_profile')
-            add_text(name='Profile name has to be between 3 and 50 chars long!',
-                     parent='w_rename_profile', color=[255, 25, 25, 255])
-            add_text(name='Current length: ' + str(len(new_name)))
-            add_dummy(parent='w_rename_profile')
+            error_msg('Profile name has to be between 3 and 50 chars long!', 'Current length: ' + str(len(new_name)))
 
     def save_quit(self):
         self.save_profile()
@@ -348,12 +346,12 @@ class ProfileMan:
             with managed_columns(name='row2', columns=2):
                 add_text(name='User Config')
                 add_button(name='##open_user_conf', label='Open', callback=lambda: webbrowser.open(self.USER_PATH))
-                set_item_color(item='##open_user_conf', style=mvGuiCol_Button, color=[25, 25, 255, 100])
+                set_item_color(item='##open_user_conf', style=mvGuiCol_Button, color=[25, 25, 255, 110])
             add_separator()
             with managed_columns(name='row3', columns=2):
                 add_text(name='Reset defaults')
                 add_button(name='##set_defaults', label='RESET', callback=self.reset_conf)
-                set_item_color(item='##set_defaults', style=mvGuiCol_Button, color=[255, 25, 25, 100])
+                set_item_color(item='##set_defaults', style=mvGuiCol_Button, color=[255, 25, 25, 110])
             add_separator()
             add_dummy()
 
@@ -367,10 +365,10 @@ class ProfileMan:
             add_text(name='This action cannot be undone!', color=[255, 25, 25, 255])
             add_dummy()
             add_button(name='btn_yes_reset', label='Yes', callback=lambda: reset_conf_(self))
-            set_item_color(item='btn_yes_reset', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+            set_item_color(item='btn_yes_reset', style=mvGuiCol_Button, color=[25, 255, 25, 110])
             add_same_line()
             add_button(name='btn_no_reset', label='No', callback=lambda: delete_item('w_reset_conf'))
-            set_item_color(item='btn_no_reset', style=mvGuiCol_Button, color=[255, 25, 25, 100])
+            set_item_color(item='btn_no_reset', style=mvGuiCol_Button, color=[255, 25, 25, 110])
             add_dummy()
 
         def reset_conf_(that):
@@ -379,6 +377,32 @@ class ProfileMan:
             that.update_user_conf()
             that.load_user_conf()
             delete_item(item='w_reset_conf')
+
+    @staticmethod
+    def about_window():
+        if does_item_exist('about_window'):
+            delete_item('about_window')
+        with window(name='about_window', label='About', autosize=True):
+            add_image(name='py_panel_text', value=str(py_panel_text))
+            with managed_columns(name='about_cols', columns=2):
+                add_text(name='PyPanel Version: ' + __version__)
+                add_button(name='git_btn', label='Github',
+                           callback=lambda: webbrowser.open('https://github.com/Finoozer/PyPanel'))
+                set_item_color(item='git_btn', style=mvGuiCol_Button, color=[25, 255, 25, 110])
+                add_text(name='Developed by: Filip Novotny')
+                add_button(name='lic_btn', label='License',
+                           callback=lambda: webbrowser.open('https://github.com/Finoozer/PyPanel/blob/master/LICENSE.md'))
+                set_item_color(item='lic_btn', style=mvGuiCol_Button, color=[25, 25, 255, 110])
+                add_text(name='Tester: Jiri Caldr')
+                add_button(name='libs_btn', label='Libraries',
+                           callback=lambda: webbrowser.open(
+                               'https://github.com/Finoozer/PyPanel#credits'))
+                set_item_color(item='libs_btn', style=mvGuiCol_Button, color=[255, 102, 0, 110])
+                add_text(name='Logo designer: Lukas Lobik')
+                add_button(name='chnglg_btn', label='Changelog',
+                           callback=lambda: webbrowser.open(
+                               'https://github.com/Finoozer/PyPanel/blob/master/CHANGELOG.md'))
+                set_item_color(item='chnglg_btn', style=mvGuiCol_Button, color=[26, 188, 156, 110])
 
 
 class SubApps:
@@ -435,15 +459,16 @@ class RustApp(SubApps):
             with window(name=self.name, label=self.label, x_pos=self.x_pos, y_pos=self.y_pos, height=self.height,
                         width=self.width, on_close=self.close_window):
                 add_button(name='btn_add_server', label='Add', callback=self.open_diag)
-                set_item_color(item='btn_add_server', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+                set_item_color(item='btn_add_server', style=mvGuiCol_Button, color=[25, 255, 25, 110])
                 add_same_line()
                 add_button(name='btn_rem_server', label='Remove', callback=self.remove_server,
                            callback_data=lambda: get_table_selections(table=self.table))
-                set_item_color(item='btn_rem_server', style=mvGuiCol_Button, color=[255, 25, 25, 100])
+                set_item_color(item='btn_rem_server', style=mvGuiCol_Button, color=[255, 25, 25, 110])
                 add_same_line()
                 add_text(name='Refresh time: sec')
                 add_same_line()
-                add_input_int(name='##rtime', min_value=10, max_value=36000, step=5, width=100, default_value=20)
+                add_input_int(name='##rtime', min_value=10, max_value=36000, step=5, width=100, default_value=20,
+                              tip='10 - 36000 sec')
                 set_value(name='##rtime', value=self.time)
                 add_table(name=self.table, headers=['Server', 'Online', 'Max', 'Queue', 'ID'])
                 if len(self.ser_list) > 0 and self.cb is None:
@@ -455,21 +480,59 @@ class RustApp(SubApps):
         self.delit('diag_add_server')
         with window(name='diag_add_server', label='Add Rust Server',
                     autosize=True, on_close=lambda: delete_item(item='diag_add_server')):
-            add_text('Server ID: ')
+            add_text('Enter server ID or entire URL: ')
             add_input_text(name='server_id', label='')
             add_button(name='btn_server_id', label='Add Server', callback=self.add_server,
                        callback_data=lambda: get_value('server_id'))
-            set_item_color(item='btn_server_id', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+            set_item_color(item='btn_server_id', style=mvGuiCol_Button, color=[25, 255, 25, 110])
+            add_same_line()
+            add_button(name='list_servers', label='List Official', callback=self.list_off_servers)
+            set_item_color(item='list_servers', style=mvGuiCol_Button, color=[255, 69, 0, 110])
+
+    def list_off_servers(self):
+        self.delit('ls_off_serv')
+        with window(name='ls_off_serv', label='Official Servers', width=570, height=260):
+            offic_list = []
+            url = 'https://api.battlemetrics.com/servers?filter[game]=rust' \
+                  '&filter[features][845b5e50-648f-11ea-aa7c-b3870f9c01b3][and][0]=689d22c4-66f4-11ea-8764-ff40d927c47a' \
+                  '&page[rel]=next&fields[server]=name&page[size]=100'
+            resp = requests.get(url).json()
+            [offic_list.append([x['attributes']['name'], x['id']]) for x in resp['data']]
+            while 'next' in resp['links']:
+                resp = requests.get(resp['links']['next']).json()
+                [offic_list.append([x['attributes']['name'], x['id']]) for x in resp['data']]
+            add_input_text(name='ser_id', label='', readonly=True, hint='Choose a server')
+            add_same_line()
+            add_button(name='add_ser#2', label='Add', callback=self.add_helper)
+            add_table(name='off_ser_tab', headers=['Name', 'ID'], callback=self.server_list_helper,
+                      callback_data=lambda: get_table_selections('off_ser_tab'))
+            for x in sorted(offic_list):
+                add_row(table='off_ser_tab', row=x)
+
+    @staticmethod
+    def server_list_helper(sender, data):
+        if len(data) > 0:
+            id_ = get_table_item(table='off_ser_tab', row=data[0][0], column=1)
+            set_value(name='ser_id', value=id_)
+
+    def add_helper(self):
+        id_ = str(get_value('ser_id'))
+        if id_.isdigit():
+            self.delit('diag_add_server')
+            self.delit('ls_off_serv')
+            self.add_server(None, id_)
 
     def add_server(self, sender, data):
-        # TODO: User should also be able to enter whole URL
         ser_num = data
+        if '.com' in ser_num:
+            ser_num = re.search(r'\d+$', ser_num).group(0)
+            print(ser_num)
+        bn_api = 'https://api.battlemetrics.com/servers/'
+        req_url = '?include=orgDescription&fields[server]=id,name,address,ip,port,portQuery,players,maxPlayers,' \
+                  'rank,status,details,queryStatus&fields[session]=start,stop,firstTime,name&fields' \
+                  '[orgDescription]=public,approvedAt'
+        url = bn_api + str(ser_num) + req_url
         try:
-            bn_api = 'https://api.battlemetrics.com/servers/'
-            req_url = '?include=orgDescription&fields[server]=id,name,address,ip,port,portQuery,players,maxPlayers,' \
-                      'rank,status,details,queryStatus&fields[session]=start,stop,firstTime,name&fields' \
-                      '[orgDescription]=public,approvedAt'
-            url = bn_api + str(ser_num) + req_url
             obj = requests.get(url).json()
             server_name = obj['data']['attributes']['name']
             curr_players = obj['data']['attributes']['players']
@@ -488,8 +551,7 @@ class RustApp(SubApps):
             self.refresh()
 
         except KeyError:
-            return add_text(parent='diag_add_server', name=f'Battlemetrics is unavailable, try again later.',
-                            color=[255, 25, 25, 255])
+            error_msg('Battlemetrics is unavailable, try again later.')
 
     def remove_server(self, sender, row):
         counter = 0
@@ -547,7 +609,6 @@ class ClockApp(SubApps):
         self.date_pointer = 'date'
         self.weekday_pointer = 'weekday'
         self.zones = [*pytz.common_timezones]
-        # TODO: PYTZ contains unavailable zones
 
     def get_local_time(self):
         while True:
@@ -563,10 +624,10 @@ class ClockApp(SubApps):
                         y_pos=self.y_pos, height=self.height, width=self.width):
                 with menu_bar(name='mb_clock', parent=self.name):
                     add_button(name='clock_add', label='Add', callback=self.open_diag)
-                    set_item_color(item='clock_add', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+                    set_item_color(item='clock_add', style=mvGuiCol_Button, color=[25, 255, 25, 110])
                     add_button(name='clock_remove', label='Remove', callback=self.remove_zone,
                                callback_data=lambda: get_table_selections(table=self.table))
-                    set_item_color(item='clock_remove', style=mvGuiCol_Button, color=[255, 25, 25, 100])
+                    set_item_color(item='clock_remove', style=mvGuiCol_Button, color=[255, 25, 25, 110])
                 with managed_columns(name='local_time', columns=2):
                     add_text(name='##big_local_time', source=self.time_pointer, wrap=-1)
                     add_text(name='##date', source=self.date_pointer)
@@ -593,7 +654,6 @@ class ClockApp(SubApps):
                 sleep(5)
 
     def open_diag(self):
-        # TODO: Make window modal
         self.delit('diag_add_zone')
         with window(name='diag_add_zone', label='Add New Clock',
                     autosize=True, on_close=lambda: delete_item(item='diag_add_zone')):
@@ -602,11 +662,11 @@ class ClockApp(SubApps):
             add_input_text(name='##search_box', hint='Berlin', no_spaces=True, callback=self.auto_complete,
                            callback_data=lambda: get_value(name='##search_box'))
             add_dummy()
-            add_listbox(name='listbox', label='', items=self.zones, num_items=3)
+            add_listbox(name='listbox', label='', items=self.zones, num_items=7)
             add_dummy()
             add_button(name='zone_add', label='Add Zone', callback=self.add_zone,
                        callback_data=lambda: get_value(name='listbox'))
-            set_item_color(item='zone_add', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+            set_item_color(item='zone_add', style=mvGuiCol_Button, color=[25, 255, 25, 110])
 
     def auto_complete(self, sender, entry):
         if len(entry) > 1:
@@ -660,8 +720,6 @@ class WeatherApp(SubApps):
     prec_am = {0: 'None', 1: '0 mm/hr', 2: '1 mm/hr', 3: '4 mm/hr', 4: '10 mm/hr', 5: '16 mm/hr', 6: '30 mm/hr',
                7: '50 mm/hr', 8: '75 mm/hr', 9: 'Over 75 mm/hr'}
 
-    # TODO: Add 'Sunny' or 'Cloudy' based on json
-
     def __init__(self, is_open=False, autosize=False, x_pos=200, y_pos=200, height=200, width=200, name='WeatherApp'):
         super().__init__(name, is_open, autosize, x_pos, y_pos, height, width)
         self.location = geocoder.ip('me').latlng
@@ -677,29 +735,29 @@ class WeatherApp(SubApps):
             with window(name=self.name, label=self.label, x_pos=self.x_pos, y_pos=self.y_pos, height=self.height,
                         width=self.width, on_close=self.close_window):
                 with managed_columns(name='weather_info_cols', columns=2):
-                    # TODO: Add current temp, sunny/cloudy - make 3 columns
                     add_text(name='Location: ' + self.city, tip='Estimate (based on your IP)')
                     add_button(name='btn_man_ref', label='Refresh', tip='Manual Refresh', callback=self.get_weather)
-                    set_item_color(item='btn_man_ref', style=mvGuiCol_Button, color=[25, 255, 25, 100])
+                    set_item_color(item='btn_man_ref', style=mvGuiCol_Button, color=[25, 255, 25, 110])
                     add_text(name='Requested At: ', source=self.req_at)
-                    # TODO: Add fixed height to table
                 add_table(name=self.table, headers=['Day', 'Hour', 'Temp', 'Prec. Type', 'Prec. Amount'])
                 if self.cb is None:
                     self.ref_table()
+                else:
+                    self.get_weather()
 
     def get_weather(self):
-        # TODO: Add loading
         url = 'http://www.7timer.info/bin/api.pl?lon=' + str(self.location[1]) + \
               '&lat=' + str(self.location[0]) + '&product=civil&output=json'
         obj = requests.get(url=url).json()
         clear_table(self.table)
         time_now = datetime.now()
         set_value(name=self.req_at, value=f'Requested At: {str(time_now.time())[:-7]}')
-        for data in obj['dataseries'][:16]:
-            future = time_now + timedelta(hours=data["timepoint"])
+        for data in obj['dataseries'][:80]:
+            future = time_now + timedelta(hours=data["timepoint"]-3)
             add_row(table=self.table, row=[f'{self.weekdays[future.weekday()]}', f'{future.hour:0>2}:00',
                                            f'{data["temp2m"]:>2} °C', f'{self.prec_type[data["prec_type"]]}',
                                            f'{self.prec_am[data["prec_amount"]]}'])
+        set_item_height(item=self.table, height=1150)
 
     def update_weather(self):
         while True:
@@ -801,17 +859,17 @@ def py_panel():
                     add_menu_item(name='mi_debug', label='Debug', callback=show_debug)
                     add_menu_item(name='mi_metrics', label='Metrics', callback=show_metrics)
                 add_separator()
-                add_menu_item(name='mi_about', label='About...', callback=None)
+                add_menu_item(name='mi_about', label='About...', callback=main_prof.about_window)
             add_dummy()
             add_button(name='btn_save_prof', label='Save Profile', callback=main_prof.save_profile)
-            set_item_color(item='btn_save_prof', style=mvGuiCol_Button, color=[124, 252, 0, 100])
+            set_item_color(item='btn_save_prof', style=mvGuiCol_Button, color=[124, 252, 0, 110])
 
     # Center app on screen
     screen_width, screen_height = size()
     set_main_window_size(width=int(screen_width / 2), height=int(screen_height / 2))
     set_main_window_pos(x=int(screen_width / 4), y=int(screen_height / 4))
 
-    set_main_window_title(title='PyPanel')
+    set_main_window_title(title='PyPanel ' + __version__ + __beta__)
     start_dearpygui(primary_window='main_window')
 
 
