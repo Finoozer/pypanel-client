@@ -20,7 +20,7 @@ from dearpygui.core import *
 from dearpygui.simple import *
 from pyautogui import size
 
-from .resources import get_resource_path
+from pypanel.resources import get_resource_path
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 DATA_DIR = get_resource_path('data')
 logo = DATA_DIR / 'logo.png'

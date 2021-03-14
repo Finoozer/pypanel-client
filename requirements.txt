@@ -1,0 +1,5 @@
+geocoder~=1.38.1
+pytz~=2021.1
+requests~=2.25.1
+dearpygui~=0.6.203
+PyAutoGUI~=0.9.52
